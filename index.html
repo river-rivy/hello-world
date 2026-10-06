@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <base target="_top">
+    <style>
+      /*css*/
+    </style>
+  </head>
+  <body>
+    <div id="homeArea">
+      <p>これから実験を始めます。了承いただける場合は、「同意する」にチェックをいれてください。</p>
+      <form action="#" id="agreementForm">
+        <label><input type="checkbox" id="agreementCheck">同意する</label>
+        <div id="agreementMessage"></div>
+        <button type="submit" id="startbtn">はじめる</button>
+      </form>
+    </div>
+
+    <div id="inputArea" style="display: none;">
+      <!-- 入力欄 -->
+      <form action="#" id="inputForm">
+        <div>
+          <p>お名前を入力してください。</p>
+          <label for="lname">姓</label>
+          <input type="text" id="lname" class="" placeholder="姓">
+          <label for="fname">名</label>
+          <input type="text" id="fname" class="" placeholder="名">
+        </div>
+
+        <div>
+          <label>現在の年齢を入力してください。</label>
+          <input type="text" id="year" class="" placeholder="年齢" pattern="^[0-9\uff10-\uff19]+$"> 歳
+        </div>
+
+        <div>
+          <label>写真をアップロードしてください。</label>
+          <input type="file" id="uploadPhoto" accept="image/png, image/jpeg" class="">
+          <img id="preview" src=""> <!--プレビュー画像表示欄-->
+        </div>
+
+<!--音声認識エリア-->
+        <div>
+          <button id="voiceBtn" type="button">音声認識ボタン</button>
+          <div id="voiceText">ここに音声が表示されます。</div>
+        </div>
+<!--★-->
+
+        <button type="submit" class="btn" id="confbtn">確認画面へ進む</button>
+      </form>
+    </div>
+
+    <div id="confirmArea" style="display: none;">
+      <!-- 内容確認 -->
+      <p>入力内容の確認</p>
+      <p>以下の内容で送信してもよろしいですか？</p>
+
+      <div class="">
+        <label>お名前</label>
+        <div id="confirmLname" class="confirm-value"></div>
+        <div id="confirmFname" class="confirm-value"></div>
+      </div>
+
+      <div class="">
+        <label>年齢</label>
+        <div id="confirmYear" class="confirm-value"></div>
+      </div>
+
+      <div class="">
+        <label>送信する写真</label>
+        <div id="noPicture" value=""></div>
+        <img id="confirmPhoto" src="">
+      </div>
+
+      <div class="btn2">
+        <button id="backbtn" class="">修正する</button>
+        <button id="submitbtn" class="">送信</button>
+      </div>
+
+      <div id="statusMessage"></div>
+    </div>
+
+    <div id="compArea" style="display: none;">
+      <h1>以上で実験は終了です</h1>
+      <p>ご協力ありがとうございました。</p>
+    </div>
+
+  </body>
+
+  <script>
+    'use strict';
+
+    //エレメント取得
+    const homeArea = document.getElementById('homeArea');     //最初のエリア
+    const inputArea = document.getElementById('inputArea');     //入力エリア
+    const inputForm = document.getElementById('inputForm');     //フォームのID
+    const confirmArea = document.getElementById('confirmArea'); //内容確認エリア
+    const compArea = document.getElementById('compArea');     //終了エリア
+
+    const agreementForm = document.getElementById('agreementForm');   //同意フォーム
+    const agreementCheck = document.getElementById('agreementCheck');     //同意するチェック
+    const startbtn = document.getElementById('startbtn');     //始めるボタン
+    const agreementMessage = document.getElementById('agreementMessage');     //同意してメッセージ
+
+    const lname = document.getElementById('lname');     //苗字
+    const fname = document.getElementById('fname');     //名前
+    const year = document.getElementById('year');     //年齢
+    const uploadPhoto = document.getElementById('uploadPhoto');     //写真 
+
+    const confirmLname = document.getElementById('confirmLname');     //苗字　内容確認
+    const confirmFname = document.getElementById('confirmFname');     //名前　内容確認
+    const confirmYear = document.getElementById('confirmYear');     //年齢　内容確認
+    const confirmPhoto = document.getElementById('confirmPhoto');       //写真　内容確認
+    const noPicture = document.getElementById('noPicture');     //写真　内容確認　未選択
+
+    const confbtn = document.getElementById('confbtn');     //確認画面へすすむ
+    const backbtn = document.getElementById('backbtn');     //修正
+    const submitbtn = document.getElementById('submitbtn');     //送信
+    const preview = document.getElementById('preview');     //写真　入力エリア　プレビュー
+    const statusMessage = document.getElementById('statusMessage');     //送信中などのメッセージ
+
+    let formData = {};      //フォームデータを保持
+    let missTapCount = 0;     //ミスタップ
+    let startTime = new Date();     //時間計測
+
+//音声認識エリア
+    const voiceBtn = document.getElementById('voiceBtn');     //音声認識ボタン
+    const voiceText = document.getElementById('voiceText');     //表示テキスト
+
+    //Web Speech APIの初期化
+    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+    recognition.lang = 'ja-JP';     //日本語設定
+    recognition.interimResults = true;    //中間結果の取得
+    recognition.continuous = true;    //連続認識モード
+
+    let silenceTimer = null;    //無音検出タイマー
+    let finalTranscript = '';   //確定結果保存用
+
+    voiceBtn.addEventListener('click', () => {
+      recognition.start();    //音声認識開始
+      voiceBtn.disabled = true;   //開始ボタン無効化
+      voiceText.textContent = '認識中...';
+    });
+
+    //音声認識結果イベント
+    recognition.addEventListener('result', (event) => {
+      clearTimeout(silenceTimer);   //無音タイマーをリセット
+
+      //認識結果を取得して結合
+      const transcript = Array.from(event.results)
+        .map(result => result[0])   //最初の代替結果を取得
+        .map(result => result.transcript)   //テキスト部分を抽出
+        .join('');    //複数の結果がある場合に結合
+
+      voiceText.textContent = transcript;   //認識結果のリアルタイム表示
+
+      //確定した結果かチェック
+      if(event.results[0].isFinal) {
+        finalTranscript = transcript;   //確定結果を保存
+      }
+
+      //無音状態が続いた場合の処理
+      silenceTimer = setTimeout(() => {
+        //確定結果があれば表示し、確定結果の変数をクリア
+        if(finalTranscript) {
+          voiceText.textContent = finalTranscript;
+          finalTranscript = '';
+        }
+        recognition.stop();
+        voiceBtn.disabled = false;
+      }, 5000);   //5秒
+    });
+
+    //エラー処理
+    recognition.addEventListener('error', (event) => {
+      voiceText.textContent = 'エラーが発生しました:　' + event.error;
+      voiceBtn.disabled = false;
+    });
+    
+//★
+
+    //ミスタップカウンター
+    document.addEventListener('click', (e) => {
+      if(!e.target.closest('input, button, label')) {
+        missTapCount++;
+      }
+    });
+
+    //home→main
+    startbtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      if(agreementCheck.checked){
+        //画面切り替え
+        homeArea.style.display = 'none';
+        inputArea.style.display = 'block';
+      }else {
+        agreementMessage.textContent = '同意するにチェックを入れてください';
+      }
+    })
+
+    
+    //写真　プレビュー
+    uploadPhoto.addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if(file) {
+        const fileURL = URL.createObjectURL(file);
+        preview.src = fileURL;
+        preview.style.display = 'block';
+        }
+      });
+
+    //写真　確認で表示
+    confbtn.addEventListener('click', function() {
+      const file = uploadPhoto.files[0];
+      if(file) {
+        const fileURL = URL.createObjectURL(file);
+        confirmPhoto.src = fileURL;
+        confirmPhoto.style.display = 'block';
+        noPicture.value = 'OK';
+      } else {
+          noPicture.textContent = '画像が選択されていません';
+          noPicture.value = '未選択';
+      }
+    });
+
+    //入力確認へすすむ
+    inputForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      formData = {
+        lname: document.getElementById('lname').value,
+        fname: document.getElementById('fname').value,
+        year: document.getElementById('year').value,
+        photo: document.getElementById('noPicture').value
+      };
+
+      confirmLname.textContent = formData.lname;
+      confirmFname.textContent = formData.fname;
+      confirmYear.textContent = formData.year;
+
+      //画面切り替え
+      inputArea.style.display = 'none';
+      confirmArea.style.display = 'block';
+    })
+
+    //修正
+    backbtn.addEventListener('click', function() {
+      //画面切り替え
+      confirmArea.style.display = 'none';
+      inputArea.style.display = 'block';
+    });
+
+    //送信
+    submitbtn.addEventListener('click', function() {
+
+      const endTime = new Date();
+      const executionTimeSec = ((endTime - startTime) / 1000).toFixed(2);
+
+      statusMessage.textContent = '送信中...';
+      statusMessage.style.color = 'black';
+      submitbtn.disabled = true;  //連打防止
+
+      const payload = {
+        ...formData,
+        executionTime: executionTimeSec,
+        misstaps: missTapCount
+      };
+
+      // //GASにデータを送信
+      // google.script.run
+      //   .withSuccessHandler(onSuccess)
+      //   .withFailureHandler(onFailure)
+      //   .insertToSheet(payload);
+
+      const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxxICLGfyvxz7GOsJY30o8n1nX56Ipgxf8ezGJwB50eyLMJtdonaNiG7U-Wo-VLgLqt/exec';
+
+      fetch(GAS_WEB_APP_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'text/plain;charset=utf-8',
+        },
+        body: JSON.stringity(payload)
+      })
+      .then(response => response.json())
+      .then(data => {
+        onSuccess(data);
+      })
+      .catch(error => {
+        onFailure(error);
+      })
+      .finally(() => {
+        submitbtn.disabled = false;
+      });
+    });
+
+    //送信成功
+    function onSuccess(response) {
+      if (response.status === 'success') {
+        statusMessage.textContent = '送信完了';
+
+        //画面切り替え
+        confirmArea.style.display = 'none';
+        compArea.style.display = 'block';
+      } else {
+        onFailure(response.message);
+      }
+    }
+
+    //送信失敗
+    function onFailure(error) {
+      statusMessage.textContent = '送信に失敗しました。　' + error;
+      statusMessage.style.color = 'red';
+    }
+
+  </script>
+</html>
