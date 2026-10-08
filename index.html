@@ -271,14 +271,14 @@
       //   .withFailureHandler(onFailure)
       //   .insertToSheet(payload);
 
-      const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxxICLGfyvxz7GOsJY30o8n1nX56Ipgxf8ezGJwB50eyLMJtdonaNiG7U-Wo-VLgLqt/exec';
+      const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzX-Sv7yGNT3LPQp7yC9k-a9DIVWHJZ3NsbJ-7sJQnadpRccqTVFmo3iD7zHp6kTYPf/exec';
 
       fetch(GAS_WEB_APP_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'text/plain;charset=utf-8',
         },
-        body: JSON.stringity(payload)
+        body: JSON.stringify(payload)
       })
       .then(response => response.json())
       .then(data => {
