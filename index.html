@@ -288,6 +288,7 @@
 
     <!--AIアシスタント-->
     <div id="aiArea" style="display: block;">
+      <button id="testSpeakBtn">読み上げテスト</button>
       <button id="voiceBtn">質問する</button>
       <div id="aiText">ここにAIからの回答が表示されます。</div>
     </div>
@@ -614,7 +615,7 @@ function updateGuide(text) {
         outsideMisstaps: missTapCount
       };
 
-      const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbymsdV6Ph38lJPREsV62zOPG6exEn-HAAR5pp6CcZnFLmKtC7XH69XyXalCqN1ZG-WFPA/exec';
+      const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbygRKIugbJI4JUtyhkR76aRPHMmBoW9XkN1DIxp0ZcK7oKnSI8sXSv5PrcH_EiMQi7Xgw/exec';
 
       fetch(GAS_WEB_APP_URL, {
         method: 'POST',
@@ -677,6 +678,12 @@ function updateGuide(text) {
       statusMessage.textContent = '送信に失敗しました。　' + error;
       statusMessage.style.color = 'red';
     }
+
+    document.getElementById('testSpeakBtn').addEventListener('click', function () {
+  const u = new SpeechSynthesisUtterance('読み上げのテストです');
+  u.lang = 'ja-JP';
+  speechSynthesis.speak(u);
+});
 
   </script>
 </html>
