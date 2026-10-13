@@ -365,6 +365,7 @@
 
       //音声認識開始
       voiceBtn.addEventListener('click', function() {
+        unlockSpeech('どうぞ、お話しください。');
         if ('speechSynthesis' in window) {
           if (speechSynthesis.speaking) speechSynthesis.cancel();
         }
@@ -477,14 +478,15 @@ recognition.onresult = function(event) {
     }
 
     let currentUtterance = null;   // 読み上げ中の発話を保持（途中で消えないように）
-let speechUnlocked = false;    // 読み上げが有効になったか
 
-// 最初のタップで無音の発話を流し、スマホの読み上げ制限を解除する
-function unlockSpeech() {
+    let speechUnlocked = false;
+
+// タップの中で実際に読み上げて、iPhoneの自動読み上げを許可させる
+function unlockSpeech(message) {
   if (speechUnlocked || !('speechSynthesis' in window)) return;
-  const u = new SpeechSynthesisUtterance(' ');
-  u.volume = 0;
-  window.speechSynthesis.speak(u);
+  const u = new SpeechSynthesisUtterance(message);
+  u.lang = 'ja-JP';
+  speechSynthesis.speak(u);
   speechUnlocked = true;
 }
 
@@ -615,7 +617,7 @@ function updateGuide(text) {
         outsideMisstaps: missTapCount
       };
 
-      const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbygRKIugbJI4JUtyhkR76aRPHMmBoW9XkN1DIxp0ZcK7oKnSI8sXSv5PrcH_EiMQi7Xgw/exec';
+      const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxZjqX4QMCkbj2PfMNAkkhft0OS7DWmv0Gyi5ap9bHBCQvDFpBw3CwM-dYkDrG9mA_lWA/exec';
 
       fetch(GAS_WEB_APP_URL, {
         method: 'POST',
