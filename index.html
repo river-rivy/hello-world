@@ -469,6 +469,8 @@
       updateGuide(advice);
     }
 
+const utterance = new SpeechSynthesisUtterance(text);
+
     //読み上げと文字案内エリアの更新の関数
     function updateGuide(text) {
       //文字案内の更新
@@ -478,7 +480,7 @@
       if('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
         
-        const utterance = new SpeechSynthesisUtterance(text);
+        //const utterance = new SpeechSynthesisUtterance(text);
         utterance.lang = 'ja-JP';
         utterance.rate = 1.0; // 読み上げ速度 (0.1〜10)
         utterance.pitch = 1.0; // 声の高さ (0〜2)
@@ -595,7 +597,7 @@
         outsideMisstaps: missTapCount
       };
 
-      const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycby9SacQ3qXo98cgIvhYoKJ9JyXdFO8_QzvG4Wn7mxWxIpjuXJQDPyrMR6ARYlxTJUKJng/exec';
+      const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbx3MwBTeWfmfhH9QQUuCHvZv7Sc6sBtBpFBAm8LGGkhP3dYrWFdmJAXelLzc21Sdac/exec';
 
       fetch(GAS_WEB_APP_URL, {
         method: 'POST',
