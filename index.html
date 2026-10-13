@@ -2,50 +2,247 @@
 <html lang="ja">
   <head>
     <base target="_top">
+    <!--<link rel="stylesheet" href="CSSが表示されることを確認したURL" type="text/css">-->
     <style>
-      /*css*/
+      /* --- 高齢者向けスマートフォンUIスタイル --- */
+      
+      /* 全体設定 */
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        font-family: "Hiragino Kaku Gothic ProN", "メイリオ", sans-serif;
+        font-size: 18px; /* 大きめのフォントサイズ */
+        line-height: 1.6;
+        color: #222222; /* コントラストの強い濃い文字色 */
+        background-color: #f8f9fa;
+        margin: 0;
+        padding: 16px;
+      }
+
+      /* コンテナ（カード風デザインで視線を集める） */
+      #homeArea, #inputArea, #confirmArea, #compArea {
+        background-color: #ffffff;
+        border: 1px solid #cccccc;
+        border-radius: 12px;
+        padding: 20px 16px;
+        max-width: 500px;
+        margin: 0 auto 20px auto;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+      }
+
+      /* 見出し・テキスト */
+      h1 {
+        font-size: 22px;
+        color: #000000;
+        text-align: center;
+        margin-top: 0;
+      }
+      p {
+        margin-top: 0;
+        margin-bottom: 16px;
+      }
+
+      /* フォームグループ */
+      .form-group {
+        margin-bottom: 24px;
+      }
+      label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 8px;
+        font-size: 18px;
+      }
+
+      /* 入力フィールド */
+      input[type="text"] {
+        width: 100%;
+        min-height: 52px; /* タップしやすい高さ */
+        font-size: 18px;
+        padding: 10px 12px;
+        border: 2px solid #666666; /* くっきりした枠線 */
+        border-radius: 8px;
+        background-color: #ffffff;
+        margin-bottom: 8px;
+      }
+      input[type="text"]:focus {
+        border-color: #0055b8;
+        outline: 3px solid rgba(0, 85, 184, 0.3);
+      }
+
+      /* 名前欄（姓・名を横並びにするレイアウト） */
+      .name-group {
+        display: flex;
+        gap: 12px;
+      }
+      .name-group > div {
+        flex: 1;
+      }
+
+      /* チェックボックス（押しやすく巨大化） */
+      .checkbox-label {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 20px;
+        font-weight: bold;
+        padding: 12px;
+        background-color: #eef4ff;
+        border: 2px solid #0055b8;
+        border-radius: 8px;
+        cursor: pointer;
+        margin-bottom: 16px;
+      }
+      input[type="checkbox"] {
+        width: 28px;
+        height: 28px;
+        accent-color: #0055b8;
+      }
+
+      /* ファイル選択 */
+      input[type="file"] {
+        font-size: 16px;
+        margin-bottom: 12px;
+        width: 100%;
+      }
+
+      /* 画像プレビュー */
+      #preview, #confirmPhoto {
+        max-width: 100%;
+        height: auto;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+        margin-top: 10px;
+        display: none;
+      }
+
+      /* ボタンデザイン */
+      button, .btn {
+        display: block;
+        width: 100%;
+        min-height: 56px; /* 指で押しやすい十分な高さ */
+        font-size: 20px;
+        font-weight: bold;
+        color: #ffffff;
+        background-color: #0055b8; /* 視認性の高い青 */
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        text-align: center;
+        box-shadow: 0 4px 0 #003370; /* 立体感をつけて「押せる」ことを明示 */
+        transition: transform 0.1s, box-shadow 0.1s;
+      }
+      button:active {
+        transform: translateY(2px);
+        box-shadow: 0 2px 0 #003370;
+      }
+      button:disabled {
+        background-color: #cccccc;
+        box-shadow: none;
+      }
+
+      /* 確認画面のボタンエリア（横並び） */
+      .btn2 {
+        display: flex;
+        gap: 12px;
+        margin-top: 24px;
+      }
+      #backbtn {
+        background-color: #666666;
+        box-shadow: 0 4px 0 #333333;
+      }
+
+      /* 確認画面の入力内容表示 */
+      .confirm-item {
+        background-color: #f0f0f0;
+        padding: 12px;
+        border-radius: 8px;
+        margin-bottom: 16px;
+      }
+      .confirm-label {
+        font-size: 14px;
+        color: #555555;
+        margin-bottom: 4px;
+      }
+      .confirm-value {
+        font-size: 20px;
+        font-weight: bold;
+        word-break: break-all;
+      }
+
+      /* エラー・警告メッセージ */
+      #agreementMessage, #statusMessage {
+        color: #d93025;
+        font-weight: bold;
+        margin-top: 12px;
+        text-align: center;
+      }
     </style>
+
   </head>
   <body>
     <div id="homeArea">
+      <!--ホーム-->
       <p>これから実験を始めます。了承いただける場合は、「同意する」にチェックをいれてください。</p>
       <form action="#" id="agreementForm">
         <label><input type="checkbox" id="agreementCheck">同意する</label>
         <div id="agreementMessage"></div>
-        <button type="submit" id="startbtn">はじめる</button>
+        <button type="submit" id="startBtn">はじめる</button>
       </form>
+    </div>
+
+    <div id="menuArea" style="display: none;">
+      <!--ハンバーガー選択画面-->
+      <div id="MenuText">
+        <p>あなたは、</p>
+        <p>グループ▲</p>
+        <p>です。</p>
+        <p>左上のメニューバーから、あなたのグループを選択して、入力ページに進んでください。</p>
+      </div>
+      <div class="hamburger">
+        <div id="groupA"></div>
+        <div id="groupB"></div>
+        <div id="groupC"></div>
+      </div>
+    </div>
+
+    <div id="dummyArea" style="display: none;">
+      <!--ダミーページ-->
+      <div id="dummyMessage">ここはグループ■です</div>
+      <div>違うページが選択されました。メニューからグループ▲のページを選択してください。</div>
+      <div class="hamburger">
+        <div id="groupA"></div>
+        <div id="groupB"></div>
+        <div id="groupC"></div>
+      </div>
     </div>
 
     <div id="inputArea" style="display: none;">
       <!-- 入力欄 -->
       <form action="#" id="inputForm">
-        <div>
+        <!--名前-->
+        <div class="form-group" id="group-name">
           <p>お名前を入力してください。</p>
           <label for="lname">姓</label>
-          <input type="text" id="lname" class="" placeholder="姓">
+          <input type="text" id="lname" class="" placeholder="姓" required>
           <label for="fname">名</label>
-          <input type="text" id="fname" class="" placeholder="名">
+          <input type="text" id="fname" class="" placeholder="名" required>
         </div>
 
-        <div>
+        <!--年齢-->
+        <div class="form-group" id="group-year">
           <label>現在の年齢を入力してください。</label>
-          <input type="text" id="year" class="" placeholder="年齢" pattern="^[0-9\uff10-\uff19]+$"> 歳
+          <input type="text" id="year" class="" placeholder="年齢" pattern="^[0-9\uff10-\uff19]+$" required> 歳
         </div>
 
-        <div>
+        <!--写真-->
+        <div class="form-group" id="group-photo">
           <label>写真をアップロードしてください。</label>
-          <input type="file" id="uploadPhoto" accept="image/png, image/jpeg" class="">
+          <input type="file" id="uploadPhoto" accept="image/png, image/jpeg" class="" required>
           <img id="preview" src=""> <!--プレビュー画像表示欄-->
         </div>
 
-<!--音声認識エリア-->
-        <div>
-          <button id="voiceBtn" type="button">音声認識ボタン</button>
-          <div id="voiceText">ここに音声が表示されます。</div>
-        </div>
-<!--★-->
-
-        <button type="submit" class="btn" id="confbtn">確認画面へ進む</button>
+        <button type="submit" class="btn" id="confBtn">確認画面へ進む</button>
       </form>
     </div>
 
@@ -54,34 +251,45 @@
       <p>入力内容の確認</p>
       <p>以下の内容で送信してもよろしいですか？</p>
 
-      <div class="">
-        <label>お名前</label>
-        <div id="confirmLname" class="confirm-value"></div>
-        <div id="confirmFname" class="confirm-value"></div>
+      <div class="confirm-item">
+        <div class="confirm-label">お名前</div>
+        <span id="confirmLname" class="confirm-value"></span>
+        <span id="confirmFname" class="confirm-value"></span>
       </div>
 
-      <div class="">
-        <label>年齢</label>
-        <div id="confirmYear" class="confirm-value"></div>
+      <div class="confirm-item">
+        <div class="confirm-label">年齢</div>
+        <div class="confirm-value"><span id="confirmYear"></span> 歳</div>
       </div>
 
-      <div class="">
-        <label>送信する写真</label>
-        <div id="noPicture" value=""></div>
-        <img id="confirmPhoto" src="">
+      <div class="confirm-item">
+        <div class="confirm-label">送信する写真</div>
+        <img id="confirmPhoto" src="" alt="送信写真">
       </div>
 
       <div class="btn2">
-        <button id="backbtn" class="">修正する</button>
-        <button id="submitbtn" class="">送信</button>
+        <button id="backBtn" class="">修正する</button>
+        <button id="submitBtn" class="">送信</button>
       </div>
 
       <div id="statusMessage"></div>
     </div>
 
     <div id="compArea" style="display: none;">
-      <h1>以上で実験は終了です</h1>
-      <p>ご協力ありがとうございました。</p>
+      <!--終了-->
+      <div id="compStatus"><h1>以上で実験は終了です</h1></div>
+      <div id="compMessage"><p>ご協力ありがとうございました。スタッフを呼んでください。</p></div>
+    </div>
+
+    <!--リタイアボタン-->
+    <div id="retireArea" style="display: block;">
+      <button id="retireBtn">中止する</button>
+    </div>
+
+    <!--AIアシスタント-->
+    <div id="aiArea" style="display: block;">
+      <button id="voiceBtn">質問する</button>
+      <div id="aiText">ここにAIからの回答が表示されます。</div>
     </div>
 
   </body>
@@ -90,93 +298,195 @@
     'use strict';
 
     //エレメント取得
-    const homeArea = document.getElementById('homeArea');     //最初のエリア
+    const homeArea = document.getElementById('homeArea');     //ホームエリア
+    const menuArea = document.getElementById('menuArea');     //メニューエリア
+    const dummyArea = document.getElementById('dummyArea');     //ダミーエリア
     const inputArea = document.getElementById('inputArea');     //入力エリア
-    const inputForm = document.getElementById('inputForm');     //フォームのID
     const confirmArea = document.getElementById('confirmArea'); //内容確認エリア
     const compArea = document.getElementById('compArea');     //終了エリア
 
     const agreementForm = document.getElementById('agreementForm');   //同意フォーム
     const agreementCheck = document.getElementById('agreementCheck');     //同意するチェック
-    const startbtn = document.getElementById('startbtn');     //始めるボタン
+    const startBtn = document.getElementById('startBtn');     //始めるボタン
     const agreementMessage = document.getElementById('agreementMessage');     //同意してメッセージ
 
-    const lname = document.getElementById('lname');     //苗字
-    const fname = document.getElementById('fname');     //名前
-    const year = document.getElementById('year');     //年齢
-    const uploadPhoto = document.getElementById('uploadPhoto');     //写真 
+    const groupA = document.getElementById('groupA');
+    const groupB = document.getElementById('groupB');
+    const groupC = document.getElementById('groupC');
+
+    const dummyMessage = document.getElementById('dummyMessage');     //ダミーページの警告メッセージ
+
+    const inputForm = document.getElementById('inputForm');     //フォームのID
+    const lname = document.getElementById('lname');     //苗字　入力
+    const fname = document.getElementById('fname');     //名前　入力
+    const year = document.getElementById('year');     //年齢　入力
+    const uploadPhoto = document.getElementById('uploadPhoto');     //写真 　入力
+    const preview = document.getElementById('preview');     //写真　入力エリア　プレビュー
 
     const confirmLname = document.getElementById('confirmLname');     //苗字　内容確認
     const confirmFname = document.getElementById('confirmFname');     //名前　内容確認
     const confirmYear = document.getElementById('confirmYear');     //年齢　内容確認
     const confirmPhoto = document.getElementById('confirmPhoto');       //写真　内容確認
-    const noPicture = document.getElementById('noPicture');     //写真　内容確認　未選択
 
-    const confbtn = document.getElementById('confbtn');     //確認画面へすすむ
-    const backbtn = document.getElementById('backbtn');     //修正
-    const submitbtn = document.getElementById('submitbtn');     //送信
-    const preview = document.getElementById('preview');     //写真　入力エリア　プレビュー
-    const statusMessage = document.getElementById('statusMessage');     //送信中などのメッセージ
+    const confBtn = document.getElementById('confBtn');     //確認遷移ボタン
+    const backBtn = document.getElementById('backBtn');     //修正ボタン
+    const submitBtn = document.getElementById('submitBtn');     //送信ボタン
+    const statusMessage = document.getElementById('statusMessage');     //送信中メッセージ
+
+    const compStatus = document.getElementById('compStatus');   //終了時のステータス（成功か中断か）
+    const compMessage = document.getElementById('compMessage');   //終了時のメッセージ
+
+    const retireArea = document.getElementById('retireArea');   //リタイアエリア
+    const retireBtn = document.getElementById('retireBtn');   //リタイアボタン
+
+    const aiArea = document.getElementById('aiArea');   //AIメッセージエリア
+    const voiceBtn = document.getElementById('voiceBtn');   //AI質問ボタン
+    const aiText = document.getElementById('aiText');   //アドバイス表示
 
     let formData = {};      //フォームデータを保持
-    let missTapCount = 0;     //ミスタップ
-    let startTime = new Date();     //時間計測
+    let timeData = {};      //時間計測群
+    let aiLogData = {};     //AI会話ログ
+    let missTapCount = 0;     //エリア外タップ
+    //エリア内複数タップ
+    let startTime = new Date();     //実行時間計測
 
-//音声認識エリア
-    const voiceBtn = document.getElementById('voiceBtn');     //音声認識ボタン
-    const voiceText = document.getElementById('voiceText');     //表示テキスト
+    //音声認識の初期化(Web Speech API)
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let recognition = null;
+    let recognitionTimer = null;
+    let lastRecognizedText = '';
 
-    //Web Speech APIの初期化
-    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-    recognition.lang = 'ja-JP';     //日本語設定
-    recognition.interimResults = true;    //中間結果の取得
-    recognition.continuous = true;    //連続認識モード
+    if(SpeechRecognition) {
+      recognition = new SpeechRecognition();
+      recognition.lang = 'ja-JP';
+      recognition.interimResults = false;
+      recognition.continuous = false;
 
-    let silenceTimer = null;    //無音検出タイマー
-    let finalTranscript = '';   //確定結果保存用
+      //音声認識開始
+      voiceBtn.addEventListener('click', function() {
+        if ('speechSynthesis' in window) {
+          window.speechSynthesis.cancel();
+        }
 
-    voiceBtn.addEventListener('click', () => {
-      recognition.start();    //音声認識開始
-      voiceBtn.disabled = true;   //開始ボタン無効化
-      voiceText.textContent = '認識中...';
-    });
+        console.log('音声ボタンがクリックされました');
 
-    //音声認識結果イベント
-    recognition.addEventListener('result', (event) => {
-      clearTimeout(silenceTimer);   //無音タイマーをリセット
+        if (recognitionTimer) clearTimeout(recognitionTimer);
 
-      //認識結果を取得して結合
-      const transcript = Array.from(event.results)
-        .map(result => result[0])   //最初の代替結果を取得
-        .map(result => result.transcript)   //テキスト部分を抽出
-        .join('');    //複数の結果がある場合に結合
+        try {
+          aiText.textContent = '聞き取り中...';
+          voiceBtn.classList.add('listening');
 
-      voiceText.textContent = transcript;   //認識結果のリアルタイム表示
+          console.log('recognition.start() 実行');
 
-      //確定した結果かチェック
-      if(event.results[0].isFinal) {
-        finalTranscript = transcript;   //確定結果を保存
+          recognition.start();
+
+          //聞き取り終了タイマー
+          recognitionTimer = setTimeout(function() {
+            console.log('10秒経過');
+            try {
+              recognition.stop();
+            } catch (e) {
+              console.error('stop error:', e);
+            }
+          }, 10000);
+        } catch (e) {
+          console.error(e);
+          recognition.stop();
+        }
+      });
+
+      recognition.onstart = function() {
+        console.log('音声認識開始');
+        };
+        recognition.onaudiostart = function() {
+          console.log('音声入力開始');
+        };
+        recognition.onspeechstart = function() {
+          console.log('音声を検出しました');
+        };
+
+      //認識結果
+      recognition.onresult = function(event) {
+        const lastIndex = event.results.length - 1;
+        const userQuery = event.results[lastIndex][0].transcript;
+
+        recognition.stop();
+        generateAdvice(userQuery);
+      };
+
+      //エラー発生時
+      recognition.onerror = function(event) {
+        if (recognitionTimer) clearTimeout(recognitionTimer);
+        voiceBtn.classList.remove('listening');
+        console.error('Speech Recognition Error:', event.error);
+        if (event.error === 'not-allowed') {
+          updateGuide('マイクの使用が許可されていません。ブラウザの設定でマイクを許可してください。');
+        } else if (event.error !== 'no-speech') {
+          updateGuide('音声の聞き取りに失敗しました。もう一度お試しください。');
+        }
+      };
+
+      recognition.onend = function() {
+        if (recognitionTimer) clearTimeout(recognitionTimer);
+        voiceBtn.classList.remove('listening');
+      };
+
+    } else {
+      voiceBtn.style.display = 'none';
+      aiText.textContent = 'お使いのブラウザは音声認識に対応していません。（Google Chromeをご使用ください）';
+    }
+
+    //画面内状況と質問内容からアドバイスを生成する関数
+    function generateAdvice(query) {
+      let advice = '';
+
+      //表示されている画面を取得
+      let currentStage = 'home';
+      if (inputArea.style.display !== 'none') currentStage = 'input';
+      if (confirmArea.style.display !== 'none') currentStage = 'confirm';
+      if (compArea.style.display !== 'none') currentStage = 'complete';
+
+      //質問内容から分岐
+      if (query.includes('何') || query.includes('どうすれば') || query.includes('次')) {
+        if (currentStage === 'home') {
+          advice = '現在は同意画面です。内容を確認し「同意する」にチェックを入れて「はじめる」を押してください。';
+        } else if (currentStage === 'input') {
+          advice = '現在は入力画面です。お名前、年齢を入力し、写真をアップロードしたら「確認画面へ進む」を押してください。';
+        } else if (currentStage === 'confirm') {
+          advice = '現在は確認画面です。入力内容に間違いがなければ「送信」ボタンを押してください。修正する場合は「修正する」を押します。';
+        } else if (currentStage === 'complete') {
+          advice = '実験は終了しています。ご協力ありがとうございました。画面を閉じて構いません。';
+        }
+      } else if (query.includes('写真') || query.includes('画像')) {
+        advice = '写真のファイル選択ボタンを押して、アップロードする画像を選んでください。';
+      } else if (query.includes('名前') || query.includes('年齢')) {
+        advice = 'お名前は姓と名に分けて入力し、年齢は半角数字でご入力ください。';
+      } else {
+        // 汎用アドバイス
+        advice = `「${query}」ですね。現在の画面の指示に従って入力・操作を進めてください。`;
       }
 
-      //無音状態が続いた場合の処理
-      silenceTimer = setTimeout(() => {
-        //確定結果があれば表示し、確定結果の変数をクリア
-        if(finalTranscript) {
-          voiceText.textContent = finalTranscript;
-          finalTranscript = '';
-        }
-        recognition.stop();
-        voiceBtn.disabled = false;
-      }, 5000);   //5秒
-    });
+      updateGuide(advice);
+    }
 
-    //エラー処理
-    recognition.addEventListener('error', (event) => {
-      voiceText.textContent = 'エラーが発生しました:　' + event.error;
-      voiceBtn.disabled = false;
-    });
-    
-//★
+    //読み上げと文字案内エリアの更新の関数
+    function updateGuide(text) {
+      //文字案内の更新
+      aiText.textContent = text;
+
+      //読み上げ実行
+      if('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'ja-JP';
+        utterance.rate = 1.0; // 読み上げ速度 (0.1〜10)
+        utterance.pitch = 1.0; // 声の高さ (0〜2)
+        
+        window.speechSynthesis.speak(utterance);
+      }
+    }
+
 
     //ミスタップカウンター
     document.addEventListener('click', (e) => {
@@ -185,8 +495,10 @@
       }
     });
 
-    //home→main
-    startbtn.addEventListener('click', function(e) {
+    //時間計測関数
+
+    //home→menu
+    startBtn.addEventListener('click', function(e) {
       e.preventDefault();
       if(agreementCheck.checked){
         //画面切り替え
@@ -197,6 +509,28 @@
       }
     })
 
+    //menu→main
+    groupA.addEventListener('click', function(e) {
+      e.preventDefault();
+      menuArea.style.display = 'none';
+      inputArea.style.display = 'block';
+    })
+
+    //menu→dummy
+    groupB.addEventListener('click', function(e) {
+      e.preventDefault();
+      menuArea.style.display = 'none';
+      dummyArea.style.display = 'block';
+
+      dummyMessage.textContent = 'ここはグループBです。';
+    });
+    groupC.addEventListener('click', function(e) {
+      e.preventDefault();
+      menuArea.style.display = 'none';
+      dummyArea.style.display = 'block';
+
+      dummyMessage.textContent = 'ここはグループCです。';
+    });
     
     //写真　プレビュー
     uploadPhoto.addEventListener('change', function(e) {
@@ -209,17 +543,13 @@
       });
 
     //写真　確認で表示
-    confbtn.addEventListener('click', function() {
+    confBtn.addEventListener('click', function() {
       const file = uploadPhoto.files[0];
       if(file) {
         const fileURL = URL.createObjectURL(file);
         confirmPhoto.src = fileURL;
         confirmPhoto.style.display = 'block';
-        noPicture.value = 'OK';
-      } else {
-          noPicture.textContent = '画像が選択されていません';
-          noPicture.value = '未選択';
-      }
+        }
     });
 
     //入力確認へすすむ
@@ -230,48 +560,42 @@
         lname: document.getElementById('lname').value,
         fname: document.getElementById('fname').value,
         year: document.getElementById('year').value,
-        photo: document.getElementById('noPicture').value
       };
 
       confirmLname.textContent = formData.lname;
       confirmFname.textContent = formData.fname;
       confirmYear.textContent = formData.year;
 
-      //画面切り替え
+      //画面切り替えmain→conf
       inputArea.style.display = 'none';
       confirmArea.style.display = 'block';
-    })
+    });
 
     //修正
-    backbtn.addEventListener('click', function() {
-      //画面切り替え
+    backBtn.addEventListener('click', function() {
       confirmArea.style.display = 'none';
       inputArea.style.display = 'block';
     });
 
     //送信
-    submitbtn.addEventListener('click', function() {
+    submitBtn.addEventListener('click', function() {
 
       const endTime = new Date();
       const executionTimeSec = ((endTime - startTime) / 1000).toFixed(2);
+      const result = '成功';
 
       statusMessage.textContent = '送信中...';
       statusMessage.style.color = 'black';
-      submitbtn.disabled = true;  //連打防止
+      submitBtn.disabled = true;  //連打防止
 
       const payload = {
         ...formData,
+        result: result,
         executionTime: executionTimeSec,
-        misstaps: missTapCount
+        outsideMisstaps: missTapCount
       };
 
-      // //GASにデータを送信
-      // google.script.run
-      //   .withSuccessHandler(onSuccess)
-      //   .withFailureHandler(onFailure)
-      //   .insertToSheet(payload);
-
-      const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzX-Sv7yGNT3LPQp7yC9k-a9DIVWHJZ3NsbJ-7sJQnadpRccqTVFmo3iD7zHp6kTYPf/exec';
+      const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycby9SacQ3qXo98cgIvhYoKJ9JyXdFO8_QzvG4Wn7mxWxIpjuXJQDPyrMR6ARYlxTJUKJng/exec';
 
       fetch(GAS_WEB_APP_URL, {
         method: 'POST',
@@ -292,12 +616,36 @@
       });
     });
 
+    //リタイアボタン押下処理
+    retireBtn.addEventListener('click', function(e) {
+      const attention = confirm('実験を中断しますか？');
+
+      if(!attention){
+        e.preventDefault();
+      }
+
+      retireArea.style.display = 'none';
+      retireBtn.disabled = true;
+      //保存🍊
+      //画面切り替え
+      homeArea.style.display = 'none';
+      menuArea.style.display = 'none';
+      dummyArea.style.display = 'none';
+      inputArea.style.display = 'none';
+      confirmArea.style.display = 'none';
+      compArea.style.display = 'block';
+      //メッセージ変更
+      compStatus.textContent = '実験が中断されました';
+      compMessage.textContent = 'スタッフを呼んでください。';
+    });
+
     //送信成功
     function onSuccess(response) {
       if (response.status === 'success') {
         statusMessage.textContent = '送信完了';
 
         //画面切り替え
+        retireArea.style.display = 'none';
         confirmArea.style.display = 'none';
         compArea.style.display = 'block';
       } else {
