@@ -365,7 +365,7 @@
       //音声認識開始
       voiceBtn.addEventListener('click', function() {
         if ('speechSynthesis' in window) {
-          window.speechSynthesis.cancel();
+          if (speechSynthesis.speaking) speechSynthesis.cancel();
         }
 
         console.log('音声ボタンがクリックされました');
@@ -406,13 +406,13 @@
         };
 
       //認識結果
-      recognition.onresult = function(event) {
-        const lastIndex = event.results.length - 1;
-        const userQuery = event.results[lastIndex][0].transcript;
+      let pendingQuery = null;
 
-        recognition.stop();
-        generateAdvice(userQuery);
-      };
+recognition.onresult = function(event) {
+  const lastIndex = event.results.length - 1;
+  pendingQuery = event.results[lastIndex][0].transcript;
+  recognition.stop();   // ここでは読み上げない
+};
 
       //エラー発生時
       recognition.onerror = function(event) {
@@ -427,9 +427,15 @@
       };
 
       recognition.onend = function() {
-        if (recognitionTimer) clearTimeout(recognitionTimer);
-        voiceBtn.classList.remove('listening');
-      };
+  if (recognitionTimer) clearTimeout(recognitionTimer);
+  voiceBtn.classList.remove('listening');
+
+  if (pendingQuery) {
+    const q = pendingQuery;
+    pendingQuery = null;
+    setTimeout(() => generateAdvice(q), 300);  // マイクが解放されるのを少し待つ
+  }
+};  
 
     } else {
       voiceBtn.style.display = 'none';
@@ -469,25 +475,35 @@
       updateGuide(advice);
     }
 
-const utterance = new SpeechSynthesisUtterance(text);
+    let currentUtterance = null;   // 読み上げ中の発話を保持（途中で消えないように）
+let speechUnlocked = false;    // 読み上げが有効になったか
 
-    //読み上げと文字案内エリアの更新の関数
-    function updateGuide(text) {
-      //文字案内の更新
-      aiText.textContent = text;
+// 最初のタップで無音の発話を流し、スマホの読み上げ制限を解除する
+function unlockSpeech() {
+  if (speechUnlocked || !('speechSynthesis' in window)) return;
+  const u = new SpeechSynthesisUtterance(' ');
+  u.volume = 0;
+  window.speechSynthesis.speak(u);
+  speechUnlocked = true;
+}
 
-      //読み上げ実行
-      if('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-        
-        //const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'ja-JP';
-        utterance.rate = 1.0; // 読み上げ速度 (0.1〜10)
-        utterance.pitch = 1.0; // 声の高さ (0〜2)
-        
-        window.speechSynthesis.speak(utterance);
-      }
-    }
+// 読み上げと文字案内エリアの更新
+function updateGuide(text) {
+  aiText.textContent = text;
+
+  if (!('speechSynthesis' in window)) return;
+
+  // 読み上げ中のときだけ止める（cancel直後のspeak無視対策）
+  if (speechSynthesis.speaking || speechSynthesis.pending) {
+    speechSynthesis.cancel();
+  }
+
+  currentUtterance = new SpeechSynthesisUtterance(text);  // 毎回新しく作る
+  currentUtterance.lang = 'ja-JP';
+  currentUtterance.rate = 1.0;
+  currentUtterance.pitch = 1.0;
+  speechSynthesis.speak(currentUtterance);
+}
 
 
     //ミスタップカウンター
@@ -502,6 +518,7 @@ const utterance = new SpeechSynthesisUtterance(text);
     //home→menu
     startBtn.addEventListener('click', function(e) {
       e.preventDefault();
+      unlockSpeech();
       if(agreementCheck.checked){
         //画面切り替え
         homeArea.style.display = 'none';
@@ -597,7 +614,7 @@ const utterance = new SpeechSynthesisUtterance(text);
         outsideMisstaps: missTapCount
       };
 
-      const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbx3MwBTeWfmfhH9QQUuCHvZv7Sc6sBtBpFBAm8LGGkhP3dYrWFdmJAXelLzc21Sdac/exec';
+      const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbymsdV6Ph38lJPREsV62zOPG6exEn-HAAR5pp6CcZnFLmKtC7XH69XyXalCqN1ZG-WFPA/exec';
 
       fetch(GAS_WEB_APP_URL, {
         method: 'POST',
