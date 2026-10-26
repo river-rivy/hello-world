@@ -519,9 +519,9 @@ function updateGuide(text) {
     //時間計測関数
         // 画面初期表示時の案内音声
     window.addEventListener('load', () => {
-      const homeText = document.getElementById('homeText').innerText;
-      speakText(homeText);
-      setHighlight(document.getElementById('agreeLabel'));
+      const u = new SpeechSynthesisUtterance('読み上げのテストです');
+  u.lang = 'ja-JP';
+  speechSynthesis.speak(u);
     });
 
     //home→menu
